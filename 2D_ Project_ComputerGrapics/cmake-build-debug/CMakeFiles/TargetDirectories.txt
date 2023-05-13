@@ -1,3 +1,3 @@
-E:/Computer Grapics Codes/Project 2/cmake-build-debug/CMakeFiles/Project_2.dir
-E:/Computer Grapics Codes/Project 2/cmake-build-debug/CMakeFiles/edit_cache.dir
-E:/Computer Grapics Codes/Project 2/cmake-build-debug/CMakeFiles/rebuild_cache.dir
+E:/Computer Grapics Codes/2D_ Project_ComputerGrapics/cmake-build-debug/CMakeFiles/Project_2.dir
+E:/Computer Grapics Codes/2D_ Project_ComputerGrapics/cmake-build-debug/CMakeFiles/edit_cache.dir
+E:/Computer Grapics Codes/2D_ Project_ComputerGrapics/cmake-build-debug/CMakeFiles/rebuild_cache.dir

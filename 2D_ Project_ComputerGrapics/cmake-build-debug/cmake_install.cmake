@@ -1,4 +1,4 @@
-# Install script for directory: E:/Computer Grapics Codes/Project 2
+# Install script for directory: E:/Computer Grapics Codes/2D_ Project_ComputerGrapics
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -45,5 +45,5 @@ endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
-file(WRITE "E:/Computer Grapics Codes/Project 2/cmake-build-debug/${CMAKE_INSTALL_MANIFEST}"
+file(WRITE "E:/Computer Grapics Codes/2D_ Project_ComputerGrapics/cmake-build-debug/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")
