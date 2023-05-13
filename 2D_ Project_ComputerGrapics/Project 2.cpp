@@ -1,286 +1,22 @@
 #include <Windows.h>
 #include <math.h>
 #include <iostream>
+#include <fstream>
+#include "point.cpp"
+#include "Shapes/Lines/DDA.cpp"
+#include "Shapes/Lines/MidPoint.cpp"
+#include "Shapes/Circle/Midpoint.cpp"
+#include "Shapes/Ellipse/Polar.cpp"
+#include "Shapes/Circle/Filling/Filling_Circle_By_Lines.cpp"
+#include "Shapes/Circle/Filling/Filling_Circle_By_Circle.cpp"
 using namespace std;
-int Round(double x)
-{
-    return (int)(x+0.5);
-}
-
-void DrawLineDDA(HDC hdc,int xs,int ys,int xe,int ye,COLORREF color)
-{
-    int Count=0;
-    int dx=xe-xs;
-    int dy=ye-ys;
-    SetPixel(hdc,xs,ys,color);
-    Count++;
-    if(abs(dx)>=abs(dy))
-    {
-        int x=xs,xinc= dx>0?1:-1;
-        double y=ys,yinc=(double)dy/dx*xinc;
-        while(x!=xe)
-        {
-            x+=xinc;
-            y+=yinc;
-            SetPixel(hdc,x,Round(y),color);
-            Count++;
-        }
-    }
-    else
-    {
-        int y=ys,yinc= dy>0?1:-1;
-        double x=xs,xinc=(double)dx/dy*yinc;
-        while(y!=ye)
-        {
-            x+=xinc;
-            y+=yinc;
-            SetPixel(hdc,Round(x),y,color);
-            Count++;
-        }
-    }
-}
-void SetPointLOW(HDC hdc,int x0,int y0,int x1, int y1,COLORREF c)
-{
-    int Count=0;
-    int dx = x1 - x0;
-    int dy = y1 - y0;
-    int yi = 1;
-    if (dy < 0)
-    {
-        yi = -1;
-        dy = -dy;
-    }
-    int D = (2 * dy) - dx;
-    int  y = y0;
-    for ( int x=x0; x<x1; x++)
-    {
-        SetPixel(hdc,x,y,c);
-        Count++;
-        if (D > 0)
-        {
-            y += yi;
-            D += (2 * (dy - dx)) ;
-        }
-        else
-            D += 2*dy;
-    }
-}
-void SetPointHIGH(HDC hdc,int x0, int y0,int x1, int y1,COLORREF c)
-{
-    int Count=0;
-    int dx = x1 - x0;
-    int dy = y1 - y0;
-    int xi = 1;
-    if (dx < 0)
-    {
-        xi = -1;
-        dx = -dx;
-    }
-    int D = (2 * dx) - dy;
-    int x = x0;
-    for (int y=y0; y<y1; y++)
-    {
-        SetPixel(hdc,x,y,c);
-        Count++;
-        if(D > 0)
-        {
-            x += xi;
-            D += (2 * (dx - dy));
-        }
-        else
-            D += 2*dx;
-    }
-}
-void drawLineBresenham(HDC hdc,int x0,int y0,int x1,int y1,COLORREF c)
-{
-    if (abs(y1 - y0) < abs(x1 - x0))
-    {
-        if (x0 > x1)
-            SetPointLOW(hdc,x1, y1, x0, y0,c);
-        else
-            SetPointLOW(hdc,x0, y0, x1, y1,c);
-    }
-    else
-    {
-        if (y0 > y1)
-            SetPointHIGH(hdc,x1, y1, x0, y0,c);
-        else
-            SetPointHIGH(hdc,x0, y0, x1, y1,c);
-    }
-}
-void Draw8Points(HDC hdc,int xc,int yc,int a,int b,COLORREF color)
-{
-    SetPixel(hdc,xc+a,yc+b,color);
-    SetPixel(hdc,xc+a,yc-b,color);
-    SetPixel(hdc,xc-a,yc+b,color);
-    SetPixel(hdc,xc-a,yc-b,color);
-    SetPixel(hdc,xc+b,yc+a,color);
-    SetPixel(hdc,xc+b,yc-a,color);
-    SetPixel(hdc,xc-b,yc+a,color);
-    SetPixel(hdc,xc-b,yc-a,color);
-}
-void DrawCircleMidpoint(HDC hdc,int xc,int yc,double radius,COLORREF c)
-{
-    int x=0,Count=0;
-    int y=radius;
-    int d1=1-radius;
-    while(x<y)
-    {
-        if(d1<0)
-        {
-            x++;
-            d1+=(2*x+2);
-        }
-        else
-        {
-            d1+=(2*(x-y)+5);
-            x++;
-            y--;
-        }
-        Draw8Points(hdc,xc,yc,x,y,c);
-    }
-}
-void Draw4Points(HDC hdc,int xc,int yc,int a,int b,COLORREF c )
-{
-    SetPixel(hdc,xc+a,yc+b,c);
-    SetPixel(hdc,xc+a,yc-b,c);
-    SetPixel(hdc,xc-a,yc+b,c);
-    SetPixel(hdc,xc-a,yc-b,c);
-}
-int Max(int r1,int r2)
-{
-    if(r1>r2)
-        return r1;
-    return r2;
-}
-void DrawEllipse(HDC hdc,int xc,int yc,int r1,int r2,COLORREF c)
-{
-    double dtheta=1.0/Max(r1,r2);
-    double x=r1;
-    double y=0;
-    double theta=0;
-    for( ; x*r2*r2>y*r1*r1; theta+=dtheta)
-    {
-        Draw4Points(hdc,xc,yc,Round(x),Round(y),c);
-        x=(r1*cos(theta));
-        y=(r2*sin(theta));
-    }
-    x=0;
-    y=r2;
-    for( ; x*r2*r2<y*r1*r1; theta+=dtheta)
-    {
-        Draw4Points(hdc,xc,yc,Round(x),Round(y),c);
-        x=(r1*cos(theta));
-        y=(r2*sin(theta));
-    }
-
-}
-void Draw8Lines(HDC hdc,int xc,int yc,int a,int b,int Quarter,COLORREF c)
-{
-    if(Quarter==1)
-    {
-        drawLineBresenham(hdc,xc,yc,xc+a,yc-b,c);
-        drawLineBresenham(hdc,xc,yc,xc+b,yc-a,c);
-    }
-    else if (Quarter==2)
-    {
-        drawLineBresenham(hdc,xc,yc,xc-a,yc-b,c);
-        drawLineBresenham(hdc,xc,yc,xc-b,yc-a,c);
-    }
-    else if(Quarter==3)
-    {
-        drawLineBresenham(hdc,xc,yc,xc-a,yc+b,c);
-        drawLineBresenham(hdc,xc,yc,xc-b,yc+a,c);
-    }
-    else
-    {
-        drawLineBresenham(hdc,xc,yc,xc+a,yc+b,c);
-        drawLineBresenham(hdc,xc,yc,xc+b,yc+a,c);
-    }
-}
-void Draw8Circles(HDC hdc,int xc,int yc,int a,int b,int Quarter,COLORREF c)
-{
-    if(Quarter==1)
-    {
-        SetPixel(hdc,xc+a,yc-b,c);
-        SetPixel(hdc,xc+b,yc-a,c);
-    }
-    else if (Quarter==2)
-    {
-        SetPixel(hdc,xc-a,yc-b,c);
-        SetPixel(hdc,xc-b,yc-a,c);
-    }
-    else if(Quarter==3)
-    {
-        SetPixel(hdc,xc-a,yc+b,c);
-        SetPixel(hdc,xc-b,yc+a,c);
-    }
-    else
-    {
-        SetPixel(hdc,xc+a,yc+b,c);
-        SetPixel(hdc,xc+b,yc+a,c);
-    }
-}
-void DrawCircleQuarterByLines(HDC hdc,int xc,int yc,int radius,int Quarter,COLORREF c)
-{
-    DrawCircleMidpoint(hdc,xc,yc,radius,c);
-    int x=0;
-    int y=radius;
-    int d=1-radius;
-    int curve1=0;
-    int curve2=3-2*radius;
-    while(x<y)
-    {
-        if(d<0)
-        {
-            d+=curve1;
-            curve1+=2;
-            curve2+=2;
-            x++;
-        }
-        else
-        {
-            d+=curve2;
-            curve1+=2;
-            curve2+=4;
-            y--;
-            x++;
-        }
-        Draw8Lines(hdc,xc,yc,x,y,Quarter,c);
-    }
-}
-void DrawCircleQuarterByCircles(HDC hdc,int xc,int yc,int radius,int Quarter,COLORREF c){
-    DrawCircleMidpoint(hdc,xc,yc,radius,c);
-    int x=0;
-    int y=radius;
-    int d=1-radius;
-    int curve1=0;
-    int curve2=3-2*radius;
-    while(x<y)
-    {
-        if(d<0)
-        {
-            d+=curve1;
-            curve1+=2;
-            curve2+=2;
-            x++;
-        }
-        else
-        {
-            d+=curve2;
-            curve1+=2;
-            curve2+=4;
-            y--;
-            x++;
-        }
-        Draw8Circles(hdc,xc,yc,x,y,Quarter,c);
-    }
-}
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
     static HCURSOR handCursor = LoadCursor(nullptr, IDC_HAND);
     static HCURSOR arrowCursor = LoadCursor(nullptr, IDC_ARROW);
     static int xs, ys, xe,xe2,ye2,x2,y2,x,y, ye, r = 255, g = 0, b = 0;
+    static int flag=0;
+    ofstream out;
     switch (message)
     {
         case WM_COMMAND:
@@ -342,6 +78,27 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                 case 16:
                     InvalidateRect(hWnd,NULL,TRUE);
                     break;
+                case 18:{//Saves all Shapes
+                    flag=1;
+                    out.open("save.txt");
+                    for (int j = 0; j < i; ++j) {
+                        out <<"("<< saveP[j].x<<","<<saveP[j].y<<")"<<endl ;
+                    }
+                    out.close();
+                    cout<<flag;
+                    break;
+                }
+                case 17:{ //Load the shapes
+                    cout<<flag;
+                    if(flag==1){
+                        HDC hdc= GetDC(hWnd);
+                        for(int j=0;j<i;j++){
+                            SetPixel(hdc,saveP[j].x,saveP[j].y, RGB(0,0,0));
+                        }
+                        ReleaseDC(hWnd,hdc);
+                    }
+                    break;
+                }
                 case 20:
                 {
                     HDC hdc = GetDC(hWnd);
