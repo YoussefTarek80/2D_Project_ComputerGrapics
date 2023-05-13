@@ -3,61 +3,108 @@
 #include <iostream>
 #include <fstream>
 #include "point.cpp"
+//SLine
 #include "Shapes/Lines/DDA.cpp"
 #include "Shapes/Lines/MidPoint.cpp"
+#include "Shapes/Lines/Paramitric.cpp"
+//ELine
+
+//SCircle
+#include "Shapes/Circle/Direct.cpp"
+#include "Shapes/Circle/Polar.cpp"
+#include "Shapes/Circle/PolarIterative.cpp"
+#include "Shapes/Circle/ModifiedMidpoint.cpp"
 #include "Shapes/Circle/Midpoint.cpp"
-#include "Shapes/Ellipse/Polar.cpp"
 #include "Shapes/Circle/Filling/Filling_Circle_By_Lines.cpp"
 #include "Shapes/Circle/Filling/Filling_Circle_By_Circle.cpp"
+//ECircle
+
+//SEllipse
+#include "Shapes/Ellipse/Polar.cpp"
+#include "Shapes/Ellipse/MidPoint.cpp"
+#include "Shapes/Ellipse/Direct.cpp"
+//EEllipse
+
+//SClipping
+#include "Shapes/Clipping/Rectangle/Line.cpp"
+#include "Shapes/Clipping/Rectangle/Point.cpp"
+#include "Shapes/Clipping/Rectangle/Polygon.cpp"
+#include "Shapes/Clipping/Square/Line.cpp"
+#include "Shapes/Clipping/Square/Point.cpp"
+//EClipping
 using namespace std;
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
     static HCURSOR handCursor = LoadCursor(nullptr, IDC_HAND);
     static HCURSOR arrowCursor = LoadCursor(nullptr, IDC_ARROW);
     static int xs, ys, xe,xe2,ye2,x2,y2,x,y, ye, r = 255, g = 0, b = 0;
+    static int xleft,xright,ybottom,ytop;
     static int flag=0;
+    static int flag2=0;
     ofstream out;
     switch (message)
     {
         case WM_COMMAND:
             switch (LOWORD(wParam))
             {
-                case 1:
-                    SetClassLongPtr(hWnd, GCLP_HBRBACKGROUND, (LONG_PTR)GetStockObject(GRAY_BRUSH));
+                case 1://change color to Gray
+                {
+                    SetClassLongPtr(hWnd, GCLP_HBRBACKGROUND, (LONG_PTR) GetStockObject(GRAY_BRUSH));
                     InvalidateRect(hWnd, nullptr, TRUE);
                     break;
-
-                case 2:
-                    SetClassLongPtr(hWnd, GCLP_HBRBACKGROUND, (LONG_PTR)GetStockObject(WHITE_BRUSH));
+                }
+                case 2://Change Color window to white
+                {
+                    SetClassLongPtr(hWnd, GCLP_HBRBACKGROUND, (LONG_PTR) GetStockObject(WHITE_BRUSH));
                     InvalidateRect(hWnd, nullptr, TRUE);
                     break;
-                case 3:
+                }
+                case 3://Draw DDA Line
                 {
                     HDC hdc = GetDC(hWnd);
                     DrawLineDDA(hdc, xs, ys, xe, ye, RGB(r, g, b));
                     ReleaseDC(hWnd, hdc);
                     break;
                 }
-                case 4:
+                case 4://Draw Line by midpoint
                 {
                     HDC hdc = GetDC(hWnd);
                     drawLineBresenham(hdc, xs, ys, xe, ye, RGB(r, g, b));
                     ReleaseDC(hWnd, hdc);
                     break;
                 }
-                case 5:
-                    // handle item 1 of submenu 3
+                case 5://Draw line by para.
+                {
+                    HDC hdc = GetDC(hWnd);
+                    Line_Para(hdc, xs, ys, xe, ye, RGB(r, g, b));
+                    ReleaseDC(hWnd, hdc);
                     break;
-                case 6:
-                    // handle item 2 of submenu 3
+                }
+                case 6://Draw circle Direct
+                 {
+                    HDC hdc = GetDC(hWnd);
+                    double rad = sqrt((xe - xs) * (xe - xs) + (ye - ys) * (ye - ys));
+                    DrawCircleDirect(hdc, xs, ys, rad, RGB(r, g, b));
+                    ReleaseDC(hWnd, hdc);
                     break;
-                case 7:
-                    // handle item 1 of submenu 4
+                }
+                case 7://Draw circle Polar
+                 {
+                    HDC hdc = GetDC(hWnd);
+                    double rad = sqrt((xe - xs) * (xe - xs) + (ye - ys) * (ye - ys));
+                    DrawCirclePolar(hdc, xs, ys, rad, RGB(r, g, b));
+                    ReleaseDC(hWnd, hdc);
                     break;
-                case 8:
-                    // handle item 2 of submenu 4
+                }
+                case 8: //Draw circle PolarIter
+                 {
+                    HDC hdc = GetDC(hWnd);
+                    double rad = sqrt((xe - xs) * (xe - xs) + (ye - ys) * (ye - ys));
+                    DrawCirclePolarIter(hdc, xs, ys, rad, RGB(r, g, b));
+                    ReleaseDC(hWnd, hdc);
                     break;
-                case 9:
+                }
+                case 9: //Draw circle Midpoint
                 {
                     HDC hdc = GetDC(hWnd);
                     double rad=sqrt((xe-xs)*(xe-xs)+(ye-ys)*(ye-ys));
@@ -65,48 +112,16 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                     ReleaseDC(hWnd, hdc);
                     break;
                 }
-
-                case 10:
-                    // handle item 2 of submenu 5
-                    break;
-                case 11:
-                    // handle item 1 of submenu 6
-                    break;
-                case 12:
-                    // handle item 2 of submenu 6
-                    break;
-                case 16:
-                    InvalidateRect(hWnd,NULL,TRUE);
-                    break;
-                case 18:{//Saves all Shapes
-                    flag=1;
-                    out.open("save.txt");
-                    for (int j = 0; j < i; ++j) {
-                        out <<"("<< saveP[j].x<<","<<saveP[j].y<<")"<<endl ;
-                    }
-                    out.close();
-                    break;
-                }
-                case 17:{ //Load the shapes
-                    if(flag==1){
-                        HDC hdc= GetDC(hWnd);
-                        for(int j=0;j<i;j++){
-                            SetPixel(hdc,saveP[j].x,saveP[j].y, RGB(0,0,0));
-                        }
-                        ReleaseDC(hWnd,hdc);
-                    }
-                    break;
-                }
-                case 20:
+                case 10://Draw circle ModifiedMidpoint
                 {
                     HDC hdc = GetDC(hWnd);
-                    double rad=sqrt((xe-xs)*(xe-xs)+(ye-ys)*(ye-ys));
-                    double radd2=sqrt((xe2-xs)*(xe2-xs)+(ye2-ys)*(ye2-ys));
-                    DrawEllipse(hdc, xs, ys, rad,radd2, RGB(r, g, b));
+                    double rad = sqrt((xe - xs) * (xe - xs) + (ye - ys) * (ye - ys));
+                    DrawCircleModifiedMidpoint(hdc, xs, ys, rad, RGB(r, g, b));
                     ReleaseDC(hWnd, hdc);
                     break;
                 }
-                case 27:{
+                case 27: //Draw circle QuarterByLines
+                {
                     cout<<"Enter Your Quarter"<<endl;
                     int q;
                     cin>>q;
@@ -116,7 +131,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                     ReleaseDC(hWnd, hdc);
                     break;
                 }
-                case 28:{
+                case 28: //Draw circle QuarterByCircles
+                {
                     cout<<"Enter Your Quarter"<<endl;
                     int q;
                     cin>>q;
@@ -126,9 +142,96 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                     ReleaseDC(hWnd, hdc);
                     break;
                 }
+                //Color Shapes
+                case 11:
+                case 12:
+                case 13:
+                case 14:
+                case 15:
+                case 16://clear
+                 {
+                    InvalidateRect(hWnd, NULL, TRUE);
+                    break;
+                }
+                case 17: //Load the shapes
+                 {
+                    if(flag==1){
+                        HDC hdc= GetDC(hWnd);
+                        for(int j=0;j<i;j++){
+                            SetPixel(hdc,saveP[j].x,saveP[j].y, RGB(0,0,0));
+                        }
+                        ReleaseDC(hWnd,hdc);
+                    }
+                    break;
+                }
+                case 18://Saves all Shapes
+                 {
+                    flag=1;
+                    out.open("save.txt");
+                    for (int j = 0; j < i; ++j) {
+                        out <<"("<< saveP[j].x<<","<<saveP[j].y<<")"<<endl ;
+                    }
+                    out.close();
+                    break;
+                }
+                case 19://Draw Ellipse Direct
+                 {
+                    HDC hdc = GetDC(hWnd);
+                    double rad=sqrt((xe-xs)*(xe-xs)+(ye-ys)*(ye-ys));
+                    double radd2=sqrt((xe2-xs)*(xe2-xs)+(ye2-ys)*(ye2-ys));
+                    DrawEllipseDirect(hdc, xs, ys, rad,radd2, RGB(r, g, b));
+                    ReleaseDC(hWnd, hdc);
+                    break;
+                }
+                case 20://Draw Ellipse Polar
+                {
+                    HDC hdc = GetDC(hWnd);
+                    double rad=sqrt((xe-xs)*(xe-xs)+(ye-ys)*(ye-ys));
+                    double radd2=sqrt((xe2-xs)*(xe2-xs)+(ye2-ys)*(ye2-ys));
+                    DrawEllipsePolar(hdc, xs, ys, rad,radd2, RGB(r, g, b));
+                    ReleaseDC(hWnd, hdc);
+                    break;
+                }
+                case 21://Draw Ellipse MidPoint
+                {
+                    HDC hdc = GetDC(hWnd);
+                    double rad=sqrt((xe-xs)*(xe-xs)+(ye-ys)*(ye-ys));
+                    double radd2=sqrt((xe2-xs)*(xe2-xs)+(ye2-ys)*(ye2-ys));
+                    DrawEllipseMidPoint(hdc, xs, ys, rad,radd2, RGB(r, g, b));
+                    ReleaseDC(hWnd, hdc);
+                    break;
+                }
+                case 22://Draw Clipping Square Point
+                {
+
+                }
+                case 23://Draw Clipping Square Line
+                {
+
+                }
+                case 24: //Draw Clipping Rectangle Point
+                {
+                    HDC hdc= GetDC(hWnd);
+                    drawLineBresenham(hdc, xs, ys, xe, ye, RGB(r, g, b));
+                    drawLineBresenham(hdc, xs, ys, xs, ye2, RGB(r, g, b));
+                    drawLineBresenham(hdc, xe, ys, xe, ye2, RGB(r, g, b));
+                    drawLineBresenham(hdc, xs, ye2, xe, ye2, RGB(r, g, b));
+                    ReleaseDC(hWnd,hdc);
+                    break;
+                }
+                case 25://Draw Clipping Rectangle Line
+                {
+
+                }
+                case 26://Draw Clipping Rectangle Polygon
+                {
+
+                }
+
             }
             case WM_LBUTTONDOWN: {
                 xs = LOWORD(lParam);
+                xleft=LOWORD(lParam);
                 ys = HIWORD(lParam);
                 break;
             }
@@ -140,6 +243,16 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             case WM_RBUTTONDOWN: {
                 xe2 = LOWORD(lParam);
                 ye2 = HIWORD(lParam);
+                break;
+            }
+            case WM_RBUTTONUP:{
+                HDC hdc= GetDC(hWnd);
+                x = LOWORD(lParam);
+                y = HIWORD(lParam);
+
+                PointClipping(hdc,x,y,xleft,ytop,xright,ybottom,RGB(r, g, b));
+
+                 ReleaseDC(hWnd,hdc);
                 break;
             }
             case WM_SETCURSOR:

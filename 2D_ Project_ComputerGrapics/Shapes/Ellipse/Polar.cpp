@@ -2,9 +2,21 @@
 void Draw4Points(HDC hdc,int xc,int yc,int a,int b,COLORREF c)
 {
     SetPixel(hdc,xc+a,yc+b,c);
+    p.x=xc+a;
+    p.y=yc+b;
+    saveP[i++]=p;
     SetPixel(hdc,xc+a,yc-b,c);
+    p.x=xc+a;
+    p.y=yc-b;
+    saveP[i++]=p;
     SetPixel(hdc,xc-a,yc+b,c);
+    p.x=xc-a;
+    p.y=yc+b;
+    saveP[i++]=p;
     SetPixel(hdc,xc-a,yc-b,c);
+    p.x=xc-a;
+    p.y=yc-b;
+    saveP[i++]=p;
 }
 int Max(int r1,int r2)
 {
@@ -12,7 +24,7 @@ int Max(int r1,int r2)
         return r1;
     return r2;
 }
-void DrawEllipse(HDC hdc,int xc,int yc,int r1,int r2,COLORREF c)
+void DrawEllipsePolar(HDC hdc,int xc,int yc,int r1,int r2,COLORREF c)
 {
     double dtheta=1.0/Max(r1,r2);
     double x=r1;
