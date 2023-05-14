@@ -1,8 +1,8 @@
 # 2D_Project_ComputerGrapics
 This is ComputerGrapics Project 
 ### Requirements:
-Implement 2D package which contains:
-      Drop down list for the following Requirements:
+Implement 2D package which contains:<br>
+      Drop down list for the following Requirements: <br>
       a. Change the background of window to be white <br>
       b. Try to change the shape of your window mouse <br>
       c. User must interact with window using mouse only <br>
