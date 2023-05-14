@@ -2,6 +2,8 @@
 #include <math.h>
 #include <iostream>
 #include <fstream>
+#include <vector>
+#include <tchar.h>
 #include "point.cpp"
 //SLine
 #include "Shapes/Lines/DDA.cpp"
@@ -32,6 +34,11 @@
 #include "Shapes/Clipping/Square/Line.cpp"
 #include "Shapes/Clipping/Square/Point.cpp"
 //EClipping
+
+//SCurve
+#include "Shapes/Curve/Hermit_Curve.cpp"
+#include "Shapes/Curve/Bezir_Curve.cpp"
+//ECurve
 using namespace std;
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
@@ -203,11 +210,29 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                 }
                 case 22://Draw Clipping Square Point
                 {
-
+                    HDC hdc= GetDC(hWnd);
+                    int len=sqrt(pow((xe-xs),2)+pow((ye-ys),2));
+                    int ye3= ys-len;
+                    int ye4= ye-len;
+                    drawLineBresenham(hdc, xs, ys, xe, ye, RGB(r, g, b));
+                    drawLineBresenham(hdc, xs, ys, xs, ye3, RGB(r, g, b));
+                    drawLineBresenham(hdc, xe, ys, xe, ye4, RGB(r, g, b));
+                    drawLineBresenham(hdc, xs, ye3, xe, ye4, RGB(r, g, b));
+                    ReleaseDC(hWnd,hdc);
+                    break;
                 }
                 case 23://Draw Clipping Square Line
                 {
-
+                    HDC hdc= GetDC(hWnd);
+                    int len=sqrt(pow((xe-xs),2)+pow((ye-ys),2));
+                    int ye3= ys-len;
+                    int ye4= ye-len;
+                    drawLineBresenham(hdc, xs, ys, xe, ye, RGB(r, g, b));
+                    drawLineBresenham(hdc, xs, ys, xs, ye3, RGB(r, g, b));
+                    drawLineBresenham(hdc, xe, ys, xe, ye4, RGB(r, g, b));
+                    drawLineBresenham(hdc, xs, ye3, xe, ye4, RGB(r, g, b));
+                    ReleaseDC(hWnd,hdc);
+                    break;
                 }
                 case 24: //Draw Clipping Rectangle Point
                 {
@@ -221,11 +246,37 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                 }
                 case 25://Draw Clipping Rectangle Line
                 {
-
+                    HDC hdc=GetDC(hWnd);
+                    drawLineBresenham(hdc,xs,ys,xe,ys,RGB(r,g,b));
+                    drawLineBresenham(hdc,xs,ys,xs,ye2,RGB(r,g,b));
+                    drawLineBresenham(hdc,xe,ys,xe,ye2,RGB(r,g,b));
+                    drawLineBresenham(hdc,xs,ye2,xe,ye2,RGB(r,g,b));
+                    ReleaseDC(hWnd,hdc);
+                    break;
                 }
                 case 26://Draw Clipping Rectangle Polygon
                 {
-
+                    HDC hdc=GetDC(hWnd);
+                    drawLineBresenham(hdc,xs,ys,xe,ys,RGB(r,g,b));
+                    drawLineBresenham(hdc,xs,ys,xs,ye2,RGB(r,g,b));
+                    drawLineBresenham(hdc,xe,ys,xe,ye2,RGB(r,g,b));
+                    drawLineBresenham(hdc,xs,ye2,xe,ye2,RGB(r,g,b));
+                    ReleaseDC(hWnd,hdc);
+                    break;
+                }
+                case 34:
+                {
+                    HDC hdc= GetDC(hWnd);
+                    DrawSquareHermiteCurve(hdc,xs,ys,18,14,xe,ye,11,17,1200,RGB(r, g, b));
+                    ReleaseDC(hWnd,hdc);
+                    break;
+                }
+                case 36:
+                {
+                    HDC hdc=GetDC(hWnd);
+                    DrawBezierCubicCurve(hdc,xs,ys,18,14,xe,ye,11,17,1200,RGB(r, g, b));
+                    ReleaseDC(hWnd,hdc);
+                    break;
                 }
 
             }
@@ -233,26 +284,35 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                 xs = LOWORD(lParam);
                 xleft=LOWORD(lParam);
                 ys = HIWORD(lParam);
+                ytop=HIWORD(lParam);
                 break;
             }
             case WM_LBUTTONUP: {
                 xe = LOWORD(lParam);
+                xright=LOWORD(lParam);
                 ye = HIWORD(lParam);
                 break;
             }
             case WM_RBUTTONDOWN: {
                 xe2 = LOWORD(lParam);
                 ye2 = HIWORD(lParam);
+                ybottom=HIWORD(lParam);
                 break;
             }
             case WM_RBUTTONUP:{
                 HDC hdc= GetDC(hWnd);
                 x = LOWORD(lParam);
                 y = HIWORD(lParam);
-
                 PointClipping(hdc,x,y,xleft,ytop,xright,ybottom,RGB(r, g, b));
-
-                 ReleaseDC(hWnd,hdc);
+                ReleaseDC(hWnd,hdc);
+                break;
+            }
+            case WM_RBUTTONDBLCLK:{
+                HDC hdc= GetDC(hWnd);
+                x = LOWORD(lParam);
+                y = HIWORD(lParam);
+                CohenSuth(hdc,x,y,x2,y2,xleft,ytop,xright,ybottom,RGB(r,g,b));
+                ReleaseDC(hWnd,hdc);
                 break;
             }
             case WM_SETCURSOR:
