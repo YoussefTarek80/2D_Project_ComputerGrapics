@@ -1,5 +1,4 @@
-
-void DrawCircleMidpoint(HDC hdc,int xc,int yc,double radius,COLORREF c)
+void DrawCircle2(HDC hdc,int xc,int yc,int radius,COLORREF c)
 {
     int x=0;
     int y=radius;
@@ -24,4 +23,18 @@ void DrawCircleMidpoint(HDC hdc,int xc,int yc,double radius,COLORREF c)
         x++;
         Draw8Points(hdc,xc,yc,x,y,c);
     }
+}
+void RFloodFill(HDC hdc,int x,int y,COLORREF bc,COLORREF fc)
+{
+    COLORREF c=GetPixel(hdc,x,y);
+
+    if(c==bc || c==fc)
+        return;
+    SetPixel(hdc,x,y,fc);
+
+    RFloodFill(hdc,x+1,y,bc,fc);
+    RFloodFill(hdc,x-1,y,bc,fc);
+    RFloodFill(hdc,x,y-1,bc,fc);
+    RFloodFill(hdc,x,y+1,bc,fc);
+
 }

@@ -4,7 +4,9 @@
 #include <fstream>
 #include <vector>
 #include <tchar.h>
+#include<stack>
 #include "point.cpp"
+
 //SLine
 #include "Shapes/Lines/DDA.cpp"
 #include "Shapes/Lines/MidPoint.cpp"
@@ -38,16 +40,29 @@
 //SCurve
 #include "Shapes/Curve/Hermit_Curve.cpp"
 #include "Shapes/Curve/Bezir_Curve.cpp"
+#include "Shapes/Curve/Filling Algorthims/Convex_Non-Convex.cpp"
+#include "Shapes/Curve/Flood Fill/Rfloodfill.cpp"
+#include "Shapes/Curve/Flood Fill/NPfloodfill.cpp"
+#include "Shapes/Curve/Cardinal_Spilling_Curve.cpp"
 //ECurve
+#include<stack>
 using namespace std;
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
     static HCURSOR handCursor = LoadCursor(nullptr, IDC_HAND);
     static HCURSOR arrowCursor = LoadCursor(nullptr, IDC_ARROW);
-    static int xs, ys, xe,xe2,ye2,x2,y2,x,y, ye, r = 255, g = 0, b = 0;
+    static int xs, ys, xe,xe2,ye2,x2,y2,x,y, ye, r = 255, g = 0, b = 0,xclick,yclick;
     static int xleft,xright,ybottom,ytop;
     static int flag=0;
-    static int flag2=0;
+    static int f=0,select=0;
+    static int f2=0;
+    static int SizeCount=0;
+    POINT p2[100];
+
+    int n=3;
+    Vector2CP *P=new Vector2CP[n];
+    double c=0.36785963;
+    static int index=0;
     ofstream out;
     switch (message)
     {
@@ -151,10 +166,46 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                 }
                 //Color Shapes
                 case 11:
-                case 12:
-                case 13:
-                case 14:
-                case 15:
+                {
+                    HDC hdc = GetDC(hWnd);
+                    r=255;
+                    g=0;
+                    b=0;
+                    ReleaseDC(hWnd, hdc);
+                    break;
+                }
+                case 12:{
+                    HDC hdc = GetDC(hWnd);
+                    r=0;
+                    g=0;
+                    b=0;
+                    ReleaseDC(hWnd, hdc);
+                    break;
+                }
+                case 13:{
+                    HDC hdc = GetDC(hWnd);
+                    r=0;
+                    g=255;
+                    b=0;
+                    ReleaseDC(hWnd, hdc);
+                    break;
+                }
+                case 14:{
+                    HDC hdc = GetDC(hWnd);
+                    r=255;
+                    g=192;
+                    b=203;
+                    ReleaseDC(hWnd, hdc);
+                    break;
+                }
+                case 15:{
+                    HDC hdc = GetDC(hWnd);
+                    r=255;
+                    g=255;
+                    b=0;
+                    ReleaseDC(hWnd, hdc);
+                    break;
+                }
                 case 16://clear
                  {
                     InvalidateRect(hWnd, NULL, TRUE);
@@ -165,7 +216,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                     if(flag==1){
                         HDC hdc= GetDC(hWnd);
                         for(int j=0;j<i;j++){
-                            SetPixel(hdc,saveP[j].x,saveP[j].y, RGB(0,0,0));
+                            SetPixel(hdc,saveP[j].x,saveP[j].y, RGB(r,g,b));
                         }
                         ReleaseDC(hWnd,hdc);
                     }
@@ -237,10 +288,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                 case 24: //Draw Clipping Rectangle Point
                 {
                     HDC hdc= GetDC(hWnd);
-                    drawLineBresenham(hdc, xs, ys, xe, ye, RGB(r, g, b));
-                    drawLineBresenham(hdc, xs, ys, xs, ye2, RGB(r, g, b));
-                    drawLineBresenham(hdc, xe, ys, xe, ye2, RGB(r, g, b));
-                    drawLineBresenham(hdc, xs, ye2, xe, ye2, RGB(r, g, b));
+                    drawLineBresenham(hdc,xs,ys,xe,ys,RGB(r,g,b));
+                    drawLineBresenham(hdc,xs,ys,xs,ye2,RGB(r,g,b));
+                    drawLineBresenham(hdc,xe,ys,xe,ye2,RGB(r,g,b));
+                    drawLineBresenham(hdc,xs,ye2,xe,ye2,RGB(r,g,b));
                     ReleaseDC(hWnd,hdc);
                     break;
                 }
@@ -278,43 +329,102 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                     ReleaseDC(hWnd,hdc);
                     break;
                 }
-
+                case 37:
+                {
+                    HDC hdc=GetDC(hWnd);
+                    f=1;
+                    ReleaseDC(hWnd,hdc);
+                    break;
+                }
+                case 39:{
+                    HDC hdc=GetDC(hWnd);
+                    DrawCircleMidpoint(hdc,x,y,50,RGB(255,0,0));
+                    RFloodFill(hdc,x,y,RGB(0,0,255),RGB(255,0,0));
+                    ReleaseDC(hWnd,hdc);
+                    break;
+                }
+                case 40:{
+                    HDC hdc=GetDC(hWnd);
+                    NRFloodFill(hdc,x,y,RGB(0,0,255),RGB(255,0,0));
+                    ReleaseDC(hWnd,hdc);
+                    break;
+                }
+                case 33:{
+                    HDC hdc=GetDC(hWnd);
+                    CardinalSpline(hdc,P,n,11200,c,RGB(0,0,255));
+                    ReleaseDC(hWnd,hdc);
+                    break;
+                }
             }
             case WM_LBUTTONDOWN: {
+                HDC hdc=GetDC(hWnd);
                 xs = LOWORD(lParam);
                 xleft=LOWORD(lParam);
                 ys = HIWORD(lParam);
                 ytop=HIWORD(lParam);
-                break;
-            }
-            case WM_LBUTTONUP: {
-                xe = LOWORD(lParam);
-                xright=LOWORD(lParam);
-                ye = HIWORD(lParam);
+                if(f==1){
+                    POINT temp;
+                    temp.x=xs;
+                    temp.y=ys;
+                    p2[SizeCount]=POINT(temp);
+                    SizeCount++;
+                }
                 break;
             }
             case WM_RBUTTONDOWN: {
+                HDC hdc=GetDC(hWnd);
+                xe = LOWORD(lParam);
+                xright=LOWORD(lParam);
+                ye = HIWORD(lParam);
+                if(f==1){
+                    DrawFigureIfConvexPolygon(hdc,p2,SizeCount,RGB(255,0,0),hWnd);
+                    ConvexFill(hdc,p2,SizeCount,RGB(255,0,0));
+                    SizeCount=0;
+                    ReleaseDC(hWnd,hdc);
+                    f=0;
+                }
+                break;
+            }
+            case WM_RBUTTONUP: {
+                HDC hdc=GetDC(hWnd);
                 xe2 = LOWORD(lParam);
                 ye2 = HIWORD(lParam);
                 ybottom=HIWORD(lParam);
                 break;
             }
-            case WM_RBUTTONUP:{
-                HDC hdc= GetDC(hWnd);
-                x = LOWORD(lParam);
-                y = HIWORD(lParam);
-                PointClipping(hdc,x,y,xleft,ytop,xright,ybottom,RGB(r, g, b));
-                ReleaseDC(hWnd,hdc);
-                break;
+//            case WM_LBUTTONDBLCLK:
+//            {
+//                HDC hdc=GetDC(hWnd);
+//                xclick=LOWORD(lParam);
+//                yclick=HIWORD(lParam);
+//                PointClipping2(hdc,xclick,yclick,xleft,ytop,xright,ybottom,RGB(r, g, b));
+//                ReleaseDC(hWnd,hdc);
+//                break;
+//            }
+            case WM_LBUTTONUP:{
+                    HDC hdc=GetDC(hWnd);
+                    x=LOWORD(lParam);
+                    y=HIWORD(lParam);
+                    ReleaseDC(hWnd,hdc);
+                    break;
             }
-            case WM_RBUTTONDBLCLK:{
-                HDC hdc= GetDC(hWnd);
-                x = LOWORD(lParam);
-                y = HIWORD(lParam);
-                CohenSuth(hdc,x,y,x2,y2,xleft,ytop,xright,ybottom,RGB(r,g,b));
-                ReleaseDC(hWnd,hdc);
-                break;
-            }
+
+//            case WM_RBUTTONDBLCLK:{
+//                HDC hdc= GetDC(hWnd);
+//                x = LOWORD(lParam);
+//                y = HIWORD(lParam);
+//                PointClipping(hdc,x,y,xleft,ytop,xright,ybottom,RGB(r, g, b));
+//                ReleaseDC(hWnd,hdc);
+//                break;
+//            }
+//            case WM_LBUTTONDBLCLK:{
+//                HDC hdc= GetDC(hWnd);
+//                x = LOWORD(lParam);
+//                y = HIWORD(lParam);
+//                CohenSuth(hdc,x,y,x2,y2,xleft,ytop,xright,ybottom,RGB(r,g,b));
+//                ReleaseDC(hWnd,hdc);
+//                break;
+//            }
             case WM_SETCURSOR:
             {
                 // Get the current mouse position
@@ -483,8 +593,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
     AppendMenu(hSubMenuCurve2, MF_STRING, 36, "Rectangle");
 
     AppendMenu(hSubMenu8, MF_POPUP, (UINT_PTR)hSubMenuCurve3, "Filling Algorithm");
-    AppendMenu(hSubMenuCurve3, MF_STRING, 37, "Convex");
-    AppendMenu(hSubMenuCurve3, MF_STRING, 38, "Non Convex");
+    AppendMenu(hSubMenuCurve3, MF_STRING, 37, "Convex and Non Convex");
 
     AppendMenu(hSubMenu8, MF_POPUP, (UINT_PTR)hSubMenuCurve4, "Flood Fill");
     AppendMenu(hSubMenuCurve4, MF_STRING, 39, "Recursive");

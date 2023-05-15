@@ -23,11 +23,11 @@ public:
         return v[i];
     }
 };
-class Matrix4
+class Matrix4CP
 {
     Vector4 M[4];
 public:
-    Matrix4(double A[])
+    Matrix4CP(double A[])
     {
         memcpy(M,A,16*sizeof(double));
     }
@@ -36,7 +36,7 @@ public:
         return M[i];
     }
 };
-Vector4 operator*(Matrix4 M,Vector4& b)
+Vector4 operator*(Matrix4CP M, Vector4& b)
 {
     Vector4 res;
     for(int i=0;i<4;i++)
@@ -50,7 +50,7 @@ double DotProduct(Vector4& a,Vector4& b)
 Vector4 GetHermiteCoeff(double x0,double s0,double x1,double s1)
 {
     static double H[16]={2,1,-2,1,-3,-2,3,-1,0,1,0,0,1,0,0,0};
-    static Matrix4 basis(H);
+    static Matrix4CP basis(H);
     Vector4 v(x0,s0,x1,s1);
     return basis*v;
 }
@@ -71,13 +71,6 @@ void DrawHermiteCurve (HDC hdc,Vector2& P0,Vector2& T0,Vector2& P1,Vector2& T1 ,
             MoveToEx(hdc, x, y, NULL);
         }
         else LineTo(hdc,x,y);
-    }
-}
-void PointClipping(HDC hdc,int x,int y,int xleft,int ytop,int xright,int ybottom,COLORREF color)
-{
-    if(x>=xleft && x<= xright && y>=ytop && y<=ybottom)
-    {
-        SetPixel(hdc,x,y,color);
     }
 }
 union OutCode
