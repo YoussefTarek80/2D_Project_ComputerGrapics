@@ -4,6 +4,7 @@
 #include <fstream>
 #include <vector>
 #include <tchar.h>
+
 #include<stack>
 #include "point.cpp"
 
@@ -51,11 +52,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
     static HCURSOR handCursor = LoadCursor(nullptr, IDC_HAND);
     static HCURSOR arrowCursor = LoadCursor(nullptr, IDC_ARROW);
-    static int xs, ys, xe,xe2,ye2,x2,y2,x,y, ye, r = 255, g = 0, b = 0,xclick,yclick;
+    static int xs, ys, xe,xe2,ye2,x,y,x2,y2, ye, r = 255, g = 0, b = 0;
     static int xleft,xright,ybottom,ytop;
     static int flag=0;
-    static int f=0,select=0;
-    static int f2=0;
+    static int f=0;
     static int SizeCount=0;
     POINT p2[100];
 
@@ -144,23 +144,34 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                 }
                 case 27: //Draw circle QuarterByLines
                 {
-                    cout<<"Enter Your Quarter"<<endl;
-                    int q;
-                    cin>>q;
                     HDC hdc = GetDC(hWnd);
                     double rad=sqrt((xe-xs)*(xe-xs)+(ye-ys)*(ye-ys));
+                    cout<<"Enter Your Quarter (1-4)"<<endl;
+                    int q;
+                    cin>>q;
+                    if(q<1 || q>4){
+                        cout<<"Error Please Enter Number From 1 to 4"<<endl;
+                        cin>>q;
+                    }
                     DrawCircleQuarterByLines(hdc, xs, ys, rad,q, RGB(r, g, b));
                     ReleaseDC(hWnd, hdc);
                     break;
                 }
                 case 28: //Draw circle QuarterByCircles
                 {
-                    cout<<"Enter Your Quarter"<<endl;
-                    int q;
-                    cin>>q;
                     HDC hdc = GetDC(hWnd);
                     double rad=sqrt((xe-xs)*(xe-xs)+(ye-ys)*(ye-ys));
-                    DrawCircleQuarterByCircles(hdc, xs, ys, rad,q, RGB(r, g, b));
+                    cout<<"Enter Your Quarter (1-4)"<<endl;
+                    int q;
+                    cin>>q;
+                    if(q<1 || q>4){
+                        cout<<"Error Please Enter Number From 1 to 4"<<endl;
+                        cin>>q;
+                    }
+                    DrawCircleMidpoint(hdc,xs,ys,rad,RGB(r, g, b));
+                    for(int i=0;i<ys;i++){
+                        DrawCircleQuarterByCircles(hdc, xs, ys, rad-i,q, RGB(r, g, b));
+                    }
                     ReleaseDC(hWnd, hdc);
                     break;
                 }
@@ -208,7 +219,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                 }
                 case 16://clear
                  {
-                    InvalidateRect(hWnd, NULL, TRUE);
+                     InvalidateRect(hWnd, NULL, TRUE);
                     break;
                 }
                 case 17: //Load the shapes
@@ -269,6 +280,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                     drawLineBresenham(hdc, xs, ys, xs, ye3, RGB(r, g, b));
                     drawLineBresenham(hdc, xe, ys, xe, ye4, RGB(r, g, b));
                     drawLineBresenham(hdc, xs, ye3, xe, ye4, RGB(r, g, b));
+                    PointClipping3( hdc, x, y, xleft, ytop, xright, ybottom,RGB(r, g, b));
                     ReleaseDC(hWnd,hdc);
                     break;
                 }
@@ -282,6 +294,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                     drawLineBresenham(hdc, xs, ys, xs, ye3, RGB(r, g, b));
                     drawLineBresenham(hdc, xe, ys, xe, ye4, RGB(r, g, b));
                     drawLineBresenham(hdc, xs, ye3, xe, ye4, RGB(r, g, b));
+                    CohenSuth2( hdc, x, y,x2,y2,xleft,ytop, xright, ybottom,RGB(r, g, b));
                     ReleaseDC(hWnd,hdc);
                     break;
                 }
@@ -292,6 +305,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                     drawLineBresenham(hdc,xs,ys,xs,ye2,RGB(r,g,b));
                     drawLineBresenham(hdc,xe,ys,xe,ye2,RGB(r,g,b));
                     drawLineBresenham(hdc,xs,ye2,xe,ye2,RGB(r,g,b));
+                    PointClipping3(hdc,x,y,xleft,ytop, xright, ybottom,RGB(r, g, b));
                     ReleaseDC(hWnd,hdc);
                     break;
                 }
@@ -302,6 +316,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                     drawLineBresenham(hdc,xs,ys,xs,ye2,RGB(r,g,b));
                     drawLineBresenham(hdc,xe,ys,xe,ye2,RGB(r,g,b));
                     drawLineBresenham(hdc,xs,ye2,xe,ye2,RGB(r,g,b));
+                    CohenSuth(hdc,x,y,x2,y2,xleft,ytop,xright,ybottom,RGB(r,g,b));
                     ReleaseDC(hWnd,hdc);
                     break;
                 }
@@ -325,7 +340,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                 case 36:
                 {
                     HDC hdc=GetDC(hWnd);
-                    DrawBezierCubicCurve(hdc,xs,ys,18,14,xe,ye,11,17,1200,RGB(r, g, b));
+                    DrawBezierCubicCurve(hdc,x,y,xs,ys,xe,ye,x,y,ye2,1200,RGB(r, g, b));
                     ReleaseDC(hWnd,hdc);
                     break;
                 }
@@ -338,20 +353,20 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                 }
                 case 39:{
                     HDC hdc=GetDC(hWnd);
-                    DrawCircleMidpoint(hdc,x,y,50,RGB(255,0,0));
-                    RFloodFill(hdc,x,y,RGB(0,0,255),RGB(255,0,0));
+                    DrawCircleMidpoint(hdc,x,y,50,RGB(r, g, b));
+                    RFloodFill(hdc,x,y,RGB(r, g, b),RGB(r, g, b));
                     ReleaseDC(hWnd,hdc);
                     break;
                 }
                 case 40:{
                     HDC hdc=GetDC(hWnd);
-                    NRFloodFill(hdc,x,y,RGB(0,0,255),RGB(255,0,0));
+                    NRFloodFill(hdc,x,y,RGB(r, g, b),RGB(r, g, b));
                     ReleaseDC(hWnd,hdc);
                     break;
                 }
                 case 33:{
                     HDC hdc=GetDC(hWnd);
-                    CardinalSpline(hdc,P,n,11200,c,RGB(0,0,255));
+                    CardinalSpline(hdc,P,n,112000,c,RGB(r,g,b));
                     ReleaseDC(hWnd,hdc);
                     break;
                 }
@@ -366,7 +381,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                     POINT temp;
                     temp.x=xs;
                     temp.y=ys;
-                    p2[SizeCount]=POINT(temp);
+                    p2[SizeCount]=temp;
                     SizeCount++;
                 }
                 break;
@@ -377,12 +392,22 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                 xright=LOWORD(lParam);
                 ye = HIWORD(lParam);
                 if(f==1){
-                    DrawFigureIfConvexPolygon(hdc,p2,SizeCount,RGB(255,0,0),hWnd);
-                    ConvexFill(hdc,p2,SizeCount,RGB(255,0,0));
+                    DrawFigureIfConvexPolygon(hdc,p2,SizeCount,RGB(r, g, b),hWnd);
+                    ConvexFill(hdc,p2,SizeCount,RGB(r, g, b));
                     SizeCount=0;
+                    char c;
+                    cout<<"Do you need Draw Convex_No-Convex again y/n"<<endl;
+                    cin>>c;
+                    if(c!='y'){
+                        f=0;
+                    }
+                    else{
+                        f=1;
+                    }
                     ReleaseDC(hWnd,hdc);
-                    f=0;
+
                 }
+
                 break;
             }
             case WM_RBUTTONUP: {
@@ -392,40 +417,22 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                 ybottom=HIWORD(lParam);
                 break;
             }
-//            case WM_LBUTTONDBLCLK:
-//            {
-//                HDC hdc=GetDC(hWnd);
-//                xclick=LOWORD(lParam);
-//                yclick=HIWORD(lParam);
-//                PointClipping2(hdc,xclick,yclick,xleft,ytop,xright,ybottom,RGB(r, g, b));
-//                ReleaseDC(hWnd,hdc);
-//                break;
-//            }
             case WM_LBUTTONUP:{
-                    HDC hdc=GetDC(hWnd);
-                    x=LOWORD(lParam);
-                    y=HIWORD(lParam);
-                    ReleaseDC(hWnd,hdc);
-                    break;
+                HDC hdc=GetDC(hWnd);
+                x=LOWORD(lParam);
+                y=HIWORD(lParam);
+                ReleaseDC(hWnd,hdc);
+                break;
             }
-
-//            case WM_RBUTTONDBLCLK:{
-//                HDC hdc= GetDC(hWnd);
-//                x = LOWORD(lParam);
-//                y = HIWORD(lParam);
-//                PointClipping(hdc,x,y,xleft,ytop,xright,ybottom,RGB(r, g, b));
-//                ReleaseDC(hWnd,hdc);
-//                break;
-//            }
-//            case WM_LBUTTONDBLCLK:{
-//                HDC hdc= GetDC(hWnd);
-//                x = LOWORD(lParam);
-//                y = HIWORD(lParam);
-//                CohenSuth(hdc,x,y,x2,y2,xleft,ytop,xright,ybottom,RGB(r,g,b));
-//                ReleaseDC(hWnd,hdc);
-//                break;
-//            }
-            case WM_SETCURSOR:
+        case WM_RBUTTONDBLCLK:{
+            HDC hdc= GetDC(hWnd);
+            x2 = LOWORD(lParam);
+            y2 = HIWORD(lParam);
+            PointClipping2(hdc,x,y,xleft,ytop,xright,ybottom,RGB(r, g, b));
+            ReleaseDC(hWnd,hdc);
+            break;
+        }
+         case WM_SETCURSOR:
             {
                 // Get the current mouse position
                 POINT pt;
@@ -603,9 +610,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
     ///////End To Add Curve Algo.//////////////
 
     ///////Start To Add Edit Window.//////////////
-    AppendMenu(hSubMenu5, MF_STRING, 16, "Clear");
-    AppendMenu(hSubMenu5, MF_STRING, 17, "Load");
     AppendMenu(hSubMenu5, MF_STRING, 18, "Save");
+    AppendMenu(hSubMenu5, MF_STRING, 17, "Load");
+    AppendMenu(hSubMenu5, MF_STRING, 16, "Clear");
+
+
     ///////End To Add Edit Window.//////////////
 
     SetMenu(hWnd, hMenu);

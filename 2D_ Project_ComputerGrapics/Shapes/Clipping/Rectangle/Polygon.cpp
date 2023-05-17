@@ -147,8 +147,6 @@ void PolygonClip(HDC hdc,POINT *p,int n,int xleft,int ytop,int xright,int ybotto
     for(int i=0; i<(int)vlist.size(); i++)
     {
         Vertex v2=vlist[i];
-        //MoveToEx(hdc,Round(v1.x),Round(v1.y),NULL);
-        //LineTo(hdc,Round(v2.x),Round(v2.y));
         DrawLine(hdc,Round(v1.x),Round(v1.y),Round(v2.x),Round(v2.y),RGB(0,200,255));
         v1=v2;
     }

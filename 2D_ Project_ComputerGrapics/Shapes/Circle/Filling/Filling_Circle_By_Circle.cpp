@@ -4,27 +4,51 @@ void Draw8Circles(HDC hdc,int xc,int yc,int a,int b,int Quarter,COLORREF c)
     if(Quarter==1)
     {
         SetPixel(hdc,xc+a,yc-b,c);
+        p.x=xc+a;
+        p.y=yc-b;
+        saveP[i++]=p;
         SetPixel(hdc,xc+b,yc-a,c);
+        p.x=xc+b;
+        p.y=yc-a;
+        saveP[i++]=p;
     }
     else if (Quarter==2)
     {
         SetPixel(hdc,xc-a,yc-b,c);
+        p.x=xc-a;
+        p.y=yc-b;
+        saveP[i++]=p;
         SetPixel(hdc,xc-b,yc-a,c);
+        p.x=xc-b;
+        p.y=yc-a;
+        saveP[i++]=p;
     }
     else if(Quarter==3)
     {
         SetPixel(hdc,xc-a,yc+b,c);
+        p.x=xc-a;
+        p.y=yc+b;
+        saveP[i++]=p;
         SetPixel(hdc,xc-b,yc+a,c);
+        p.x=xc-b;
+        p.y=yc+a;
+        saveP[i++]=p;
     }
     else
     {
         SetPixel(hdc,xc+a,yc+b,c);
+        p.x=xc+a;
+        p.y=yc+b;
+        saveP[i++]=p;
         SetPixel(hdc,xc+b,yc+a,c);
+        p.x=xc+b;
+        p.y=yc+a;
+        saveP[i++]=p;
     }
 }
 
 void DrawCircleQuarterByCircles(HDC hdc,int xc,int yc,int radius,int Quarter,COLORREF c){
-    DrawCircleMidpoint(hdc,xc,yc,radius,c);
+
     int x=0;
     int y=radius;
     int d=1-radius;

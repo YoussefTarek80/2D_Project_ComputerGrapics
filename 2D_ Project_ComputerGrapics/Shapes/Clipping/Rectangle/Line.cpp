@@ -101,6 +101,7 @@ void HIntersect(double xs,double ys,double xe,double ye,int y,double *xi,double 
     *yi=y;
     *xi=xs+(y-ys)*(xe-xs)/(ye-ys);
 }
+
 void CohenSuth(HDC hdc,int xs,int ys,int xe,int ye,int xleft,int ytop,int xright,int ybottom,COLORREF c)
 {
     double x1=xs,y1=ys,x2=xe,y2=ye;

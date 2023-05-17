@@ -38,6 +38,7 @@ void DrawCircleQuarterByLines(HDC hdc,int xc,int yc,int radius,int Quarter,COLOR
             curve1+=2;
             curve2+=2;
             x++;
+
         }
         else
         {
@@ -46,7 +47,9 @@ void DrawCircleQuarterByLines(HDC hdc,int xc,int yc,int radius,int Quarter,COLOR
             curve2+=4;
             y--;
             x++;
+
         }
         Draw8Lines(hdc,xc,yc,x,y,Quarter,c);
+
     }
 }

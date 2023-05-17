@@ -28,6 +28,6 @@ void NRFloodFill(HDC hdc,int x,int y,COLORREF bc,COLORREF fc)
         s.push(MyPoint((p.x)-1,p.y));
         s.push(MyPoint(p.x,(p.y)-1));
         s.push(MyPoint(p.x,(p.y)+1));
-        DrawCircleMidpoint(hdc,x,y,50,RGB(255,0,0));
+        DrawCircleMidpoint(hdc,x,y,50,fc);
     }
 }

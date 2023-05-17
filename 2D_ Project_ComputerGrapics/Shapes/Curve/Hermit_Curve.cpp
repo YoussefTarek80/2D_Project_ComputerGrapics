@@ -93,20 +93,3 @@ void DrawSquareHermiteCurve(HDC hdc,double x1,double y1,double u1,double u2,doub
         DrawSquare(hdc, Round(x), Round(y),x2,y2,c);
     }
 }
-void DrawHermiteCurve(HDC hdc,double x1,double y1,double u1,double u2,double x2,double y2,double v1,double v2,int n,COLORREF c)
-{
-    double dt=1.0/n;
-    Vector4C Gx(x1,u1,x2,u2);
-    Vector4C Gy(y1,v1,y2,v2);
-    Matrix4C m(1,0,0,0,0,1,0,0,-3,-2,3,-1,2,1,-2,1);
-    Vector4C Vx(m*Gx);
-    Vector4C Vy(m*Gy);
-    double x,y;
-    for(double t=0; t<1; t+=dt)
-    {
-        Vector4C Vt(1,t,t*t,t*t*t);
-        x=Vt*Vx;
-        y=Vt*Vy;
-        SetPixel(hdc, Round(x), Round(y),c);
-    }
-}

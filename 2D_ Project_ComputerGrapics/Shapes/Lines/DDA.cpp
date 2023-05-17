@@ -1,19 +1,4 @@
 
-//class DDA{
-//    struct point{
-//        int x;
-//        int y;
-//    };
-//    point p;
-//    point *saveP;
-//    int i;
-//public:
-//    DDA(point p, point *arr, int i){
-//        this->p=p;
-//        this->saveP=arr;
-//        this->i=i;
-//    }
-
     int Round(double x)
     {
         return (int)(x+0.5);

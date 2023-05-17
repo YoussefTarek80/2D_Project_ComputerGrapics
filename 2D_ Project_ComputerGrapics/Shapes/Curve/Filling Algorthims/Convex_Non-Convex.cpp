@@ -108,10 +108,17 @@ void ScanEdge(POINT v1,POINT v2,Entry table[])
 }
 void DrawSanLines(HDC hdc,Entry table[],COLORREF color)
 {
-    for(int y=0; y<MAXENTRIES; y++)
+    for(int y=0; y<MAXENTRIES; y++){
         if(table[y].xmin<table[y].xmax)
-            for(int x=table[y].xmin; x<=table[y].xmax; x++)
+            for(int x=table[y].xmin; x<=table[y].xmax; x++){
                 SetPixel(hdc,x,y,color);
+                p.x=x;
+                p.y=y;
+                saveP[i++]=p;
+            }
+
+    }
+
 }
 void ConvexFill(HDC hdc,POINT p[],int n,COLORREF color)
 {

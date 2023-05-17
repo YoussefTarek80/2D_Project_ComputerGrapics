@@ -16,6 +16,5 @@ void DrawEllipseDirect(HDC hdc,int xc,int yc,int r1,int r2,COLORREF c)
         y++;
         x=sqrt(1-(y*y)/(r2*r2))*r1;
         Draw4Points(hdc,xc,yc,Round(x),y,c);
-
     }
 }

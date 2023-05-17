@@ -113,7 +113,9 @@ void DrawHermiteCurve(HDC hdc,Vector2CP& P1,Vector2CP& T1,Vector2CP& P2,Vector2C
         x=Vt*Vx;
         y=Vt*Vy;
         SetPixel(hdc,Round(x),Round(y),c);
-
+        p.x=Round(x);
+        p.y=Round(y);
+        saveP[i++]=p;
     }
 }
 void CardinalSpline(HDC hdc,Vector2CP P[],int n,int NoP,double c,COLORREF color)
