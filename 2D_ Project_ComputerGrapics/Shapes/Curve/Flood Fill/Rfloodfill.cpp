@@ -31,7 +31,9 @@ void RFloodFill(HDC hdc,int x,int y,COLORREF bc,COLORREF fc)
     if(c==bc || c==fc)
         return;
     SetPixel(hdc,x,y,fc);
-
+    p.x=x;
+    p.y=y;
+    saveP[i++]=p;
     RFloodFill(hdc,x+1,y,bc,fc);
     RFloodFill(hdc,x-1,y,bc,fc);
     RFloodFill(hdc,x,y-1,bc,fc);

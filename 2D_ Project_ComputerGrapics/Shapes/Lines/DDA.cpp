@@ -5,14 +5,14 @@
     }
     void DrawLineDDA(HDC hdc,int xs,int ys,int xe,int ye,COLORREF color)
     {
-        int Count=0;
+
         int dx=xe-xs;
         int dy=ye-ys;
         SetPixel(hdc,xs,ys,color);
         p.x=xs;
         p.y=ys;
         saveP[i++]=p;
-        Count++;
+
         if(abs(dx)>=abs(dy))
         {
             int x=xs,xinc= dx>0?1:-1;
@@ -25,7 +25,7 @@
                 p.x=x;
                 p.y=Round(y);
                 saveP[i++]=p;
-                Count++;
+
             }
         }
         else
@@ -40,7 +40,7 @@
                 p.x=Round(x);
                 p.y=y;
                 saveP[i++]=p;
-                Count++;
+
             }
         }
     }

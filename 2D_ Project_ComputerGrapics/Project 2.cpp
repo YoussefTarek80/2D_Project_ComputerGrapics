@@ -48,8 +48,30 @@
 //ECurve
 #include<stack>
 using namespace std;
+void SaveFunction(string fileName,long long size){
+    fstream file;
+    file.open(fileName);
+    for (int j = 0; j < size; ++j) {
+        file << saveP[j].x<<" "<<saveP[j].y<<endl ;
+    }
+    file.close();
+}
+void LoadFunction(HDC hdc,string fileName,long long size,COLORREF C){
+    fstream file;
+    file.open(fileName);
+    int x1,y1,j=0;
+    while(j<i) {
+        file >> x1 >> y1;
+        cout<<x1<<" "<<y1<<endl;
+        SetPixel(hdc, x1, y1, C);
+        j++;
+    }
+
+    file.close();
+}
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
+
     static HCURSOR handCursor = LoadCursor(nullptr, IDC_HAND);
     static HCURSOR arrowCursor = LoadCursor(nullptr, IDC_ARROW);
     static int xs, ys, xe,xe2,ye2,x,y,x2,y2, ye, r = 255, g = 0, b = 0;
@@ -219,28 +241,35 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                 }
                 case 16://clear
                  {
+                     fstream file;
+                     file.open("save.txt");
+
                      InvalidateRect(hWnd, NULL, TRUE);
+                     file.close();
                     break;
                 }
                 case 17: //Load the shapes
                  {
                     if(flag==1){
                         HDC hdc= GetDC(hWnd);
-                        for(int j=0;j<i;j++){
-                            SetPixel(hdc,saveP[j].x,saveP[j].y, RGB(r,g,b));
-                        }
+                        LoadFunction(hdc,"save.txt",i,RGB(r,g,b));
+//                        for(int j=0;j<i;j++){
+//                            SetPixel(hdc,saveP[j].x,saveP[j].y, RGB(r,g,b));
+//                        }
                         ReleaseDC(hWnd,hdc);
                     }
                     break;
                 }
                 case 18://Saves all Shapes
                  {
-                    flag=1;
-                    out.open("save.txt");
-                    for (int j = 0; j < i; ++j) {
-                        out <<"("<< saveP[j].x<<","<<saveP[j].y<<")"<<endl ;
-                    }
-                    out.close();
+                     flag=1;
+                     SaveFunction("save.txt",i);
+
+//                    out.open("save.txt");
+//                    for (int j = 0; j < i; ++j) {
+//                        out <<"("<< saveP[j].x<<","<<saveP[j].y<<")"<<endl ;
+//                    }
+//                    out.close();
                     break;
                 }
                 case 19://Draw Ellipse Direct
